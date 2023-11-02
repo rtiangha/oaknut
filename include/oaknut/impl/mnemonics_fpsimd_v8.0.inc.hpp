@@ -141,22 +141,6 @@ void ADDV(SReg rd, VReg_4S rn)
 {
     emit<"0100111010110001101110nnnnnddddd", "d", "n">(rd, rn);
 }
-void AESD(VReg_16B rd, VReg_16B rn)
-{
-    emit<"0100111000101000010110nnnnnddddd", "d", "n">(rd, rn);
-}
-void AESE(VReg_16B rd, VReg_16B rn)
-{
-    emit<"0100111000101000010010nnnnnddddd", "d", "n">(rd, rn);
-}
-void AESIMC(VReg_16B rd, VReg_16B rn)
-{
-    emit<"0100111000101000011110nnnnnddddd", "d", "n">(rd, rn);
-}
-void AESMC(VReg_16B rd, VReg_16B rn)
-{
-    emit<"0100111000101000011010nnnnnddddd", "d", "n">(rd, rn);
-}
 void AND(VReg_8B rd, VReg_8B rn, VReg_8B rm)
 {
     emit<"00001110001mmmmm000111nnnnnddddd", "d", "n", "m">(rd, rn, rm);
@@ -1433,10 +1417,6 @@ void FCVTZS(XReg xd, DReg rn)
 {
     emit<"1001111001111000000000nnnnnddddd", "d", "n">(xd, rn);
 }
-void FCVTZS(HReg rd, HReg rn, ImmRange<1, 16> fbits)
-{
-    emit<"010111110001hbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
 void FCVTZS(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 {
     emit<"01011111001hhbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 64 - fbits.value());
@@ -1444,14 +1424,6 @@ void FCVTZS(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 void FCVTZS(DReg rd, DReg rn, ImmRange<1, 64> fbits)
 {
     emit<"0101111101hhhbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 128 - fbits.value());
-}
-void FCVTZS(VReg_4H rd, VReg_4H rn, ImmRange<1, 16> fbits)
-{
-    emit<"000011110001hbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
-void FCVTZS(VReg_8H rd, VReg_8H rn, ImmRange<1, 16> fbits)
-{
-    emit<"010011110001hbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
 }
 void FCVTZS(VReg_2S rd, VReg_2S rn, ImmRange<1, 32> fbits)
 {
@@ -1517,10 +1489,6 @@ void FCVTZU(XReg xd, DReg rn)
 {
     emit<"1001111001111001000000nnnnnddddd", "d", "n">(xd, rn);
 }
-void FCVTZU(HReg rd, HReg rn, ImmRange<1, 16> fbits)
-{
-    emit<"011111110001hbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
 void FCVTZU(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 {
     emit<"01111111001hhbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 64 - fbits.value());
@@ -1528,14 +1496,6 @@ void FCVTZU(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 void FCVTZU(DReg rd, DReg rn, ImmRange<1, 64> fbits)
 {
     emit<"0111111101hhhbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 128 - fbits.value());
-}
-void FCVTZU(VReg_4H rd, VReg_4H rn, ImmRange<1, 16> fbits)
-{
-    emit<"001011110001hbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
-void FCVTZU(VReg_8H rd, VReg_8H rn, ImmRange<1, 16> fbits)
-{
-    emit<"011011110001hbbb111111nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
 }
 void FCVTZU(VReg_2S rd, VReg_2S rn, ImmRange<1, 32> fbits)
 {
@@ -4636,10 +4596,6 @@ void SCVTF(DReg rd, XReg xn)
 {
     emit<"1001111001100010000000nnnnnddddd", "d", "n">(rd, xn);
 }
-void SCVTF(HReg rd, HReg rn, ImmRange<1, 16> fbits)
-{
-    emit<"010111110001hbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
 void SCVTF(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 {
     emit<"01011111001hhbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 64 - fbits.value());
@@ -4647,14 +4603,6 @@ void SCVTF(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 void SCVTF(DReg rd, DReg rn, ImmRange<1, 64> fbits)
 {
     emit<"0101111101hhhbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 128 - fbits.value());
-}
-void SCVTF(VReg_4H rd, VReg_4H rn, ImmRange<1, 16> fbits)
-{
-    emit<"000011110001hbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
-void SCVTF(VReg_8H rd, VReg_8H rn, ImmRange<1, 16> fbits)
-{
-    emit<"010011110001hbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
 }
 void SCVTF(VReg_2S rd, VReg_2S rn, ImmRange<1, 32> fbits)
 {
@@ -4687,46 +4635,6 @@ void SCVTF(VReg_4S rd, VReg_4S rn)
 void SCVTF(VReg_2D rd, VReg_2D rn)
 {
     emit<"0100111001100001110110nnnnnddddd", "d", "n">(rd, rn);
-}
-void SHA1C(QReg rd, SReg rn, VReg_4S rm)
-{
-    emit<"01011110000mmmmm000000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
-}
-void SHA1H(SReg rd, SReg rn)
-{
-    emit<"0101111000101000000010nnnnnddddd", "d", "n">(rd, rn);
-}
-void SHA1M(QReg rd, SReg rn, VReg_4S rm)
-{
-    emit<"01011110000mmmmm001000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
-}
-void SHA1P(QReg rd, SReg rn, VReg_4S rm)
-{
-    emit<"01011110000mmmmm000100nnnnnddddd", "d", "n", "m">(rd, rn, rm);
-}
-void SHA1SU0(VReg_4S rd, VReg_4S rn, VReg_4S rm)
-{
-    emit<"01011110000mmmmm001100nnnnnddddd", "d", "n", "m">(rd, rn, rm);
-}
-void SHA1SU1(VReg_4S rd, VReg_4S rn)
-{
-    emit<"0101111000101000000110nnnnnddddd", "d", "n">(rd, rn);
-}
-void SHA256H(QReg rd, QReg rn, VReg_4S rm)
-{
-    emit<"01011110000mmmmm010000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
-}
-void SHA256H2(QReg rd, QReg rn, VReg_4S rm)
-{
-    emit<"01011110000mmmmm010100nnnnnddddd", "d", "n", "m">(rd, rn, rm);
-}
-void SHA256SU0(VReg_4S rd, VReg_4S rn)
-{
-    emit<"0101111000101000001010nnnnnddddd", "d", "n">(rd, rn);
-}
-void SHA256SU1(VReg_4S rd, VReg_4S rn, VReg_4S rm)
-{
-    emit<"01011110000mmmmm011000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
 }
 void SHADD(VReg_8B rd, VReg_8B rn, VReg_8B rm)
 {
@@ -7941,10 +7849,6 @@ void UCVTF(DReg rd, XReg xn)
 {
     emit<"1001111001100011000000nnnnnddddd", "d", "n">(rd, xn);
 }
-void UCVTF(HReg rd, HReg rn, ImmRange<1, 16> fbits)
-{
-    emit<"011111110001hbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
 void UCVTF(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 {
     emit<"01111111001hhbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 64 - fbits.value());
@@ -7952,14 +7856,6 @@ void UCVTF(SReg rd, SReg rn, ImmRange<1, 32> fbits)
 void UCVTF(DReg rd, DReg rn, ImmRange<1, 64> fbits)
 {
     emit<"0111111101hhhbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 128 - fbits.value());
-}
-void UCVTF(VReg_4H rd, VReg_4H rn, ImmRange<1, 16> fbits)
-{
-    emit<"001011110001hbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
-}
-void UCVTF(VReg_8H rd, VReg_8H rn, ImmRange<1, 16> fbits)
-{
-    emit<"011011110001hbbb111001nnnnnddddd", "d", "n", "hb">(rd, rn, 32 - fbits.value());
 }
 void UCVTF(VReg_2S rd, VReg_2S rn, ImmRange<1, 32> fbits)
 {
@@ -9160,4 +9056,69 @@ void ZIP2(VReg_4S rd, VReg_4S rn, VReg_4S rm)
 void ZIP2(VReg_2D rd, VReg_2D rn, VReg_2D rm)
 {
     emit<"01001110110mmmmm011110nnnnnddddd", "d", "n", "m">(rd, rn, rm);
+}
+
+// FEAT_AES
+
+void AESD(VReg_16B rd, VReg_16B rn)
+{
+    emit<"0100111000101000010110nnnnnddddd", "d", "n">(rd, rn);
+}
+void AESE(VReg_16B rd, VReg_16B rn)
+{
+    emit<"0100111000101000010010nnnnnddddd", "d", "n">(rd, rn);
+}
+void AESIMC(VReg_16B rd, VReg_16B rn)
+{
+    emit<"0100111000101000011110nnnnnddddd", "d", "n">(rd, rn);
+}
+void AESMC(VReg_16B rd, VReg_16B rn)
+{
+    emit<"0100111000101000011010nnnnnddddd", "d", "n">(rd, rn);
+}
+
+// FEAT_SHA1
+
+void SHA1C(QReg rd, SReg rn, VReg_4S rm)
+{
+    emit<"01011110000mmmmm000000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
+}
+void SHA1H(SReg rd, SReg rn)
+{
+    emit<"0101111000101000000010nnnnnddddd", "d", "n">(rd, rn);
+}
+void SHA1M(QReg rd, SReg rn, VReg_4S rm)
+{
+    emit<"01011110000mmmmm001000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
+}
+void SHA1P(QReg rd, SReg rn, VReg_4S rm)
+{
+    emit<"01011110000mmmmm000100nnnnnddddd", "d", "n", "m">(rd, rn, rm);
+}
+void SHA1SU0(VReg_4S rd, VReg_4S rn, VReg_4S rm)
+{
+    emit<"01011110000mmmmm001100nnnnnddddd", "d", "n", "m">(rd, rn, rm);
+}
+void SHA1SU1(VReg_4S rd, VReg_4S rn)
+{
+    emit<"0101111000101000000110nnnnnddddd", "d", "n">(rd, rn);
+}
+
+// FEAT_SHA256
+
+void SHA256H(QReg rd, QReg rn, VReg_4S rm)
+{
+    emit<"01011110000mmmmm010000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
+}
+void SHA256H2(QReg rd, QReg rn, VReg_4S rm)
+{
+    emit<"01011110000mmmmm010100nnnnnddddd", "d", "n", "m">(rd, rn, rm);
+}
+void SHA256SU0(VReg_4S rd, VReg_4S rn)
+{
+    emit<"0101111000101000001010nnnnnddddd", "d", "n">(rd, rn);
+}
+void SHA256SU1(VReg_4S rd, VReg_4S rn, VReg_4S rm)
+{
+    emit<"01011110000mmmmm011000nnnnnddddd", "d", "n", "m">(rd, rn, rm);
 }

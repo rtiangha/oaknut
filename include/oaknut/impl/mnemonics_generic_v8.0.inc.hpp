@@ -401,38 +401,6 @@ void CNEG(XReg xd, XReg xn, Cond cond)
         throw OaknutException{ExceptionType::InvalidCond};
     emit<"11011010100mmmmmcccc01nnnnnddddd", "d", "n", "m", "c">(xd, xn, xn, invert(cond));
 }
-void CRC32B(WReg wd, WReg wn, WReg wm)
-{
-    emit<"00011010110mmmmm010000nnnnnddddd", "d", "n", "m">(wd, wn, wm);
-}
-void CRC32H(WReg wd, WReg wn, WReg wm)
-{
-    emit<"00011010110mmmmm010001nnnnnddddd", "d", "n", "m">(wd, wn, wm);
-}
-void CRC32W(WReg wd, WReg wn, WReg wm)
-{
-    emit<"00011010110mmmmm010010nnnnnddddd", "d", "n", "m">(wd, wn, wm);
-}
-void CRC32X(WReg wd, WReg wn, XReg xm)
-{
-    emit<"10011010110mmmmm010011nnnnnddddd", "d", "n", "m">(wd, wn, xm);
-}
-void CRC32CB(WReg wd, WReg wn, WReg wm)
-{
-    emit<"00011010110mmmmm010100nnnnnddddd", "d", "n", "m">(wd, wn, wm);
-}
-void CRC32CH(WReg wd, WReg wn, WReg wm)
-{
-    emit<"00011010110mmmmm010101nnnnnddddd", "d", "n", "m">(wd, wn, wm);
-}
-void CRC32CW(WReg wd, WReg wn, WReg wm)
-{
-    emit<"00011010110mmmmm010110nnnnnddddd", "d", "n", "m">(wd, wn, wm);
-}
-void CRC32CX(WReg wd, WReg wn, XReg xm)
-{
-    emit<"10011010110mmmmm010111nnnnnddddd", "d", "n", "m">(wd, wn, xm);
-}
 void CSDB()
 {
     emit<"11010101000000110010001010011111">();
@@ -504,6 +472,10 @@ void DCPS1(Imm<16> imm = 0)
 void DCPS2(Imm<16> imm = 0)
 {
     emit<"11010100101iiiiiiiiiiiiiiii00010", "i">(imm);
+}
+void DCPS3(Imm<16> imm = 0)
+{
+    emit<"11010100101iiiiiiiiiiiiiiii00011", "i">(imm);
 }
 void DMB(BarrierOp imm)
 {
@@ -1036,7 +1008,8 @@ void MRS(XReg xt, SystemReg systemreg)
 }
 void MSR(PstateField pstatefield, Imm<4> imm)
 {
-    emit<"1101010100000ooo0100MMMMooo11111", "o", "M">(pstatefield, imm);
+    pstatefield_verify_imm(pstatefield, imm);
+    emit<"1101010100000ooo0100MMMMooo11111", "oMo", "M">(pstatefield, imm);
 }
 void MSR(SystemReg systemreg, XReg xt)
 {
@@ -1137,6 +1110,8 @@ void PRFM(PrfOp prfop, AddrOffset<21, 2> label)
 void PRFM(PrfOp prfop, XRegSp xn, RReg rm, IndexExt ext = IndexExt::LSL, ImmChoice<0, 3> amount = 0)
 {
     indexext_verify_reg_size(ext, rm);
+    if ((static_cast<unsigned>(ext) & 2) == 0)
+        throw OaknutException{ExceptionType::InvalidIndexExt};
     emit<"11111000101mmmmmxxxS10nnnnnttttt", "t", "n", "m", "x", "S">(prfop, xn, rm, ext, amount);
 }
 void PRFUM(PrfOp prfop, XRegSp xn, SOffset<9, 0> simm = 0)
@@ -1207,10 +1182,6 @@ void RORV(XReg xd, XReg xn, XReg xm)
 {
     emit<"10011010110mmmmm001011nnnnnddddd", "d", "n", "m">(xd, xn, xm);
 }
-void SB()
-{
-    emit<"11010101000000110011000011111111">();
-}
 void SBC(WReg wd, WReg wn, WReg wm)
 {
     emit<"01011010000mmmmm000000nnnnnddddd", "d", "n", "m">(wd, wn, wm);
@@ -1278,6 +1249,10 @@ void SEVL()
 void SMADDL(XReg xd, WReg wn, WReg wm, XReg xa)
 {
     emit<"10011011001mmmmm0aaaaannnnnddddd", "d", "n", "m", "a">(xd, wn, wm, xa);
+}
+void SMC(Imm<16> imm)
+{
+    emit<"11010100000iiiiiiiiiiiiiiii00011", "i">(imm);
 }
 void SMNEGL(XReg xd, WReg wn, WReg wm)
 {
@@ -1605,7 +1580,7 @@ void TBZ(RReg rt, Imm<6> imm, AddrOffset<16, 2> label)
 }
 void TLBI(TlbiOp op, XReg xt)
 {
-    emit<"1101010100001ooo1000MMMMooottttt", "oMo", "t">(op, xt);
+    emit<"1101010100001ooo100NMMMMooottttt", "oNMo", "t">(op, xt);
 }
 void TST(WReg wn, BitImm32 imm)
 {
@@ -1706,4 +1681,46 @@ void WFI()
 void YIELD()
 {
     emit<"11010101000000110010000000111111">();
+}
+
+// FEAT_CRC32
+
+void CRC32B(WReg wd, WReg wn, WReg wm)
+{
+    emit<"00011010110mmmmm010000nnnnnddddd", "d", "n", "m">(wd, wn, wm);
+}
+void CRC32H(WReg wd, WReg wn, WReg wm)
+{
+    emit<"00011010110mmmmm010001nnnnnddddd", "d", "n", "m">(wd, wn, wm);
+}
+void CRC32W(WReg wd, WReg wn, WReg wm)
+{
+    emit<"00011010110mmmmm010010nnnnnddddd", "d", "n", "m">(wd, wn, wm);
+}
+void CRC32X(WReg wd, WReg wn, XReg xm)
+{
+    emit<"10011010110mmmmm010011nnnnnddddd", "d", "n", "m">(wd, wn, xm);
+}
+void CRC32CB(WReg wd, WReg wn, WReg wm)
+{
+    emit<"00011010110mmmmm010100nnnnnddddd", "d", "n", "m">(wd, wn, wm);
+}
+void CRC32CH(WReg wd, WReg wn, WReg wm)
+{
+    emit<"00011010110mmmmm010101nnnnnddddd", "d", "n", "m">(wd, wn, wm);
+}
+void CRC32CW(WReg wd, WReg wn, WReg wm)
+{
+    emit<"00011010110mmmmm010110nnnnnddddd", "d", "n", "m">(wd, wn, wm);
+}
+void CRC32CX(WReg wd, WReg wn, XReg xm)
+{
+    emit<"10011010110mmmmm010111nnnnnddddd", "d", "n", "m">(wd, wn, xm);
+}
+
+// FEAT_RPRFM
+
+void RPRFM(RprfOp rprfop, XReg xm, XRegSp xn)
+{
+    emit<"11111000101mmmmmx1xS10nnnnn11ttt", "xSt", "m", "n">(rprfop, xm, xn);
 }

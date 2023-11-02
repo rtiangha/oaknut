@@ -28,6 +28,7 @@ OAKNUT_EXCEPTION(ImmOutOfRange, "outsized Imm value")
 // arm64_encode_helpers.inc.hpp
 OAKNUT_EXCEPTION(InvalidAddSubExt, "invalid AddSubExt choice for rm size")
 OAKNUT_EXCEPTION(InvalidIndexExt, "invalid IndexExt choice for rm size")
+OAKNUT_EXCEPTION(InvalidPstateFieldImmediate, "invalid immediate for given pstatefield")
 OAKNUT_EXCEPTION(BitPositionOutOfRange, "bit position exceeds size of rt")
 OAKNUT_EXCEPTION(RequiresAbsoluteAddressesContext, "absolute addresses required")
 

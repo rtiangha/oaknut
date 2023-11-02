@@ -1,6 +1,43 @@
 // SPDX-FileCopyrightText: Copyright (c) 2022 merryhime <https://mary.rs>
 // SPDX-License-Identifier: MIT
 
+// FEAT_LOR
+
+void LDLAR(WReg wt, XRegSp xn)
+{
+    emit<"1000100011011111011111nnnnnttttt", "t", "n">(wt, xn);
+}
+void LDLAR(XReg xt, XRegSp xn)
+{
+    emit<"1100100011011111011111nnnnnttttt", "t", "n">(xt, xn);
+}
+void LDLARB(WReg wt, XRegSp xn)
+{
+    emit<"0000100011011111011111nnnnnttttt", "t", "n">(wt, xn);
+}
+void LDLARH(WReg wt, XRegSp xn)
+{
+    emit<"0100100011011111011111nnnnnttttt", "t", "n">(wt, xn);
+}
+void STLLR(WReg wt, XRegSp xn)
+{
+    emit<"1000100010011111011111nnnnnttttt", "t", "n">(wt, xn);
+}
+void STLLR(XReg xt, XRegSp xn)
+{
+    emit<"1100100010011111011111nnnnnttttt", "t", "n">(xt, xn);
+}
+void STLLRB(WReg wt, XRegSp xn)
+{
+    emit<"0000100010011111011111nnnnnttttt", "t", "n">(wt, xn);
+}
+void STLLRH(WReg wt, XRegSp xn)
+{
+    emit<"0100100010011111011111nnnnnttttt", "t", "n">(wt, xn);
+}
+
+// FEAT_LSE
+
 void CAS(WReg ws, WReg wt, XRegSp xn)
 {
     emit<"10001000101sssss011111nnnnnttttt", "s", "t", "n">(ws, wt, xn);
@@ -352,22 +389,6 @@ void LDEORH(WReg ws, WReg wt, XRegSp xn)
 void LDEORLH(WReg ws, WReg wt, XRegSp xn)
 {
     emit<"01111000011sssss001000nnnnnttttt", "s", "t", "n">(ws, wt, xn);
-}
-void LDLAR(WReg wt, XRegSp xn)
-{
-    emit<"1000100011011111011111nnnnnttttt", "t", "n">(wt, xn);
-}
-void LDLAR(XReg xt, XRegSp xn)
-{
-    emit<"1100100011011111011111nnnnnttttt", "t", "n">(xt, xn);
-}
-void LDLARB(WReg wt, XRegSp xn)
-{
-    emit<"0000100011011111011111nnnnnttttt", "t", "n">(wt, xn);
-}
-void LDLARH(WReg wt, XRegSp xn)
-{
-    emit<"0100100011011111011111nnnnnttttt", "t", "n">(wt, xn);
 }
 void LDSET(WReg ws, WReg wt, XRegSp xn)
 {
@@ -784,22 +805,6 @@ void STEORH(WReg ws, XRegSp xn)
 void STEORLH(WReg ws, XRegSp xn)
 {
     emit<"01111000011sssss001000nnnnn11111", "s", "n">(ws, xn);
-}
-void STLLR(WReg wt, XRegSp xn)
-{
-    emit<"1000100010011111011111nnnnnttttt", "t", "n">(wt, xn);
-}
-void STLLR(XReg xt, XRegSp xn)
-{
-    emit<"1100100010011111011111nnnnnttttt", "t", "n">(xt, xn);
-}
-void STLLRB(WReg wt, XRegSp xn)
-{
-    emit<"0000100010011111011111nnnnnttttt", "t", "n">(wt, xn);
-}
-void STLLRH(WReg wt, XRegSp xn)
-{
-    emit<"0100100010011111011111nnnnnttttt", "t", "n">(wt, xn);
 }
 void STSET(WReg ws, XRegSp xn)
 {

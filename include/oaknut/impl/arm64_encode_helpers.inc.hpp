@@ -204,6 +204,30 @@ void indexext_verify_reg_size(IndexExt ext, RReg rm)
     throw OaknutException{ExceptionType::InvalidIndexExt};
 }
 
+void pstatefield_verify_imm(PstateField pstatefield, Imm<4> imm)
+{
+    switch (pstatefield) {
+    case PstateField::ALLINT:
+    case PstateField::PM:
+    case PstateField::SVCRSM:
+    case PstateField::SVCRSMZA:
+    case PstateField::SVCRZA:
+        if (imm.value() != 0 && imm.value() != 1)
+            throw OaknutException{ExceptionType::InvalidPstateFieldImmediate};
+        break;
+    case PstateField::DAIFClr:
+    case PstateField::DAIFSet:
+    case PstateField::DIT:
+    case PstateField::PAN:
+    case PstateField::SPSel:
+    case PstateField::SSBS:
+    case PstateField::TCO:
+    case PstateField::UAO:
+        break;
+    }
+    throw OaknutException{ExceptionType::InvalidPstateFieldImmediate};
+}
+
 void tbz_verify_reg_size(RReg rt, Imm<6> imm)
 {
     if (rt.bitsize() == 32 && imm.value() >= 32)
