@@ -72,6 +72,7 @@ if (BUILD_TESTING)
 
     add_executable(oaknut-tests
         tests/_feature_detect.cpp
+        tests/amx.cpp
         tests/basic.cpp
         tests/fpsimd.cpp
         tests/general.cpp
