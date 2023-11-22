@@ -84,6 +84,7 @@ public:
         label.m_wbs.clear();
     }
 
+#include "oaknut/impl/mnemonics_apple_amx.inc.hpp"
 #include "oaknut/impl/mnemonics_fpsimd_v8.0.inc.hpp"
 #include "oaknut/impl/mnemonics_fpsimd_v8.1.inc.hpp"
 #include "oaknut/impl/mnemonics_fpsimd_v8.2.inc.hpp"

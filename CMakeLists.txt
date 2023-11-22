@@ -35,6 +35,7 @@ set(header_files
     ${CMAKE_CURRENT_SOURCE_DIR}/include/oaknut/impl/mnemonics_generic_v8.1.inc.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/oaknut/impl/mnemonics_generic_v8.2.inc.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/oaknut/impl/mnemonics_generic_v8.3.inc.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/oaknut/impl/mnemonics_apple_amx.inc.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/oaknut/impl/multi_typed_name.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/oaknut/impl/offset.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/oaknut/impl/overloaded.hpp
