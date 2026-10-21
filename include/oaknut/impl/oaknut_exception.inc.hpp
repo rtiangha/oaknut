@@ -8,6 +8,7 @@ OAKNUT_EXCEPTION(InvalidWZRConversion, "unexpected WZR passed into an WRegWsp")
 OAKNUT_EXCEPTION(InvalidXZRConversion, "unexpected XZR passed into an XRegSp")
 OAKNUT_EXCEPTION(InvalidDElem_1, "invalid DElem_1")
 OAKNUT_EXCEPTION(InvalidElementIndex, "elem_index is out of range")
+OAKNUT_EXCEPTION(InvalidPstateFieldImmediate, "invalid immediate for given pstatefield")
 OAKNUT_EXCEPTION(InvalidRegisterIndex, "register index is out of range")
 
 // imm.hpp / offset.hpp / list.hpp

@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) 2022 merryhime <https://mary.rs>
 // SPDX-License-Identifier: MIT
 
+// FEAT_RDM
+
 void SQRDMLAH(HReg rd, HReg rn, HElem em)
 {
     if (em.reg_index() >= 16)

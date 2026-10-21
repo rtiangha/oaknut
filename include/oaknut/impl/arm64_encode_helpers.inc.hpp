@@ -40,14 +40,40 @@ OAKNUT_STD_ENCODE(AddSubExt, v, 3)
 OAKNUT_STD_ENCODE(IndexExt, v, 3)
 OAKNUT_STD_ENCODE(AddSubShift, v, 2)
 OAKNUT_STD_ENCODE(LogShift, v, 2)
-OAKNUT_STD_ENCODE(PstateField, v, 6)
+OAKNUT_STD_ENCODE(PstateField, v, 10)
 OAKNUT_STD_ENCODE(SystemReg, v, 15)
 OAKNUT_STD_ENCODE(AtOp, v, 7)
 OAKNUT_STD_ENCODE(BarrierOp, v, 4)
 OAKNUT_STD_ENCODE(DcOp, v, 10)
 OAKNUT_STD_ENCODE(IcOp, v, 10)
 OAKNUT_STD_ENCODE(PrfOp, v, 5)
-OAKNUT_STD_ENCODE(TlbiOp, v, 10)
+OAKNUT_STD_ENCODE(RprfOp, v, 6)
+OAKNUT_STD_ENCODE(TlbiOp, v, 11)
+
+void pstatefield_verify_imm(PstateField pstatefield, Imm<4> imm)
+{
+    switch (pstatefield) {
+    case PstateField::ALLINT:
+    case PstateField::PM:
+    case PstateField::SVCRSM:
+    case PstateField::SVCRSMZA:
+    case PstateField::SVCRZA:
+        // Only CRm<0> carries the immediate for these fields
+        if (imm.value() != 0 && imm.value() != 1)
+            throw OaknutException{ExceptionType::InvalidPstateFieldImmediate};
+        return;
+    case PstateField::DAIFClr:
+    case PstateField::DAIFSet:
+    case PstateField::DIT:
+    case PstateField::PAN:
+    case PstateField::SPSel:
+    case PstateField::SSBS:
+    case PstateField::TCO:
+    case PstateField::UAO:
+        return;
+    }
+    throw OaknutException{ExceptionType::InvalidPstateFieldImmediate};
+}
 
 template<std::uint32_t splat>
 std::uint32_t encode(MovImm16 v)
