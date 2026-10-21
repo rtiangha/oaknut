@@ -18,7 +18,7 @@ struct Imm {
 public:
     static_assert(bit_size_ != 0 && bit_size_ <= 32, "Invalid bit_size");
     static constexpr std::size_t bit_size = bit_size_;
-    static constexpr std::uint32_t mask = (1 << bit_size) - 1;
+    static constexpr std::uint32_t mask = ~std::uint32_t{0} >> (32 - bit_size);
 
     constexpr /* implicit */ Imm(std::uint32_t value_)
         : m_value(value_)

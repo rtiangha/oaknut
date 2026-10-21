@@ -113,7 +113,8 @@ std::uint32_t encode(AddrOffset<size, align> v)
 {
     static_assert(std::popcount(splat) == size - align);
 
-    const auto encode_fn = [](std::ptrdiff_t current_offset, std::ptrdiff_t target_offset) {
+    // Relative offsets only; the base address is not needed.
+    const auto encode_fn = [](std::ptrdiff_t current_offset, std::ptrdiff_t target_offset, std::uintptr_t) {
         const std::ptrdiff_t diff = target_offset - current_offset;
         return pdep<splat>(AddrOffset<size, align>::encode(diff));
     };
@@ -124,7 +125,7 @@ std::uint32_t encode(AddrOffset<size, align> v)
                           },
                           [&](Label* label) -> std::uint32_t {
                               if (label->m_offset) {
-                                  return encode_fn(Policy::offset(), *label->m_offset);
+                                  return encode_fn(Policy::offset(), *label->m_offset, 0);
                               }
 
                               label->m_wbs.emplace_back(Label::Writeback{Policy::offset(), ~splat, static_cast<Label::EmitFunctionType>(encode_fn)});
@@ -143,14 +144,16 @@ std::uint32_t encode(PageOffset<size, shift_amount> v)
 {
     static_assert(std::popcount(splat) == size);
 
-    const auto encode_fn = [](std::ptrdiff_t current_offset, std::ptrdiff_t target_offset) {
-        return pdep<splat>(PageOffset<size, shift_amount>::encode(static_cast<std::uintptr_t>(current_offset), static_cast<std::uintptr_t>(target_offset)));
+    // Page deltas must be computed from real addresses (base + offset), not buffer offsets,
+    // unless the buffer base is page-aligned.
+    const auto encode_fn = [](std::ptrdiff_t current_offset, std::ptrdiff_t target_offset, std::uintptr_t base) {
+        return pdep<splat>(PageOffset<size, shift_amount>::encode(base + static_cast<std::uintptr_t>(current_offset), base + static_cast<std::uintptr_t>(target_offset)));
     };
 
     return std::visit(detail::overloaded{
                           [&](Label* label) -> std::uint32_t {
                               if (label->m_offset) {
-                                  return encode_fn(Policy::offset(), *label->m_offset);
+                                  return encode_fn(Policy::offset(), *label->m_offset, absolute_base());
                               }
 
                               label->m_wbs.emplace_back(Label::Writeback{Policy::offset(), ~splat, static_cast<Label::EmitFunctionType>(encode_fn)});

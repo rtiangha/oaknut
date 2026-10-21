@@ -37,6 +37,11 @@ public:
         return to_string(type);
     }
 
+    ExceptionType get_type() const noexcept
+    {
+        return type;
+    }
+
 private:
     ExceptionType type;
 };

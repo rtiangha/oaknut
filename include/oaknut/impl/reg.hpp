@@ -56,7 +56,8 @@ struct Reg {
         , m_bitsize(static_cast<std::uint8_t>(bitsize_))
         , m_is_vector(is_vector_)
     {
-        assert(index_ >= -1 && index_ <= 31);
+        if (index_ < -1 || index_ > 31)
+            throw OaknutException{ExceptionType::InvalidRegisterIndex};
         assert(bitsize_ != 0 && (bitsize_ & (bitsize_ - 1)) == 0 && "Bitsize must be a power of two");
     }
 
@@ -137,7 +138,7 @@ struct SpReg : public RReg {
 
 struct WspReg : public RReg {
     constexpr explicit WspReg()
-        : RReg(64, -1) {}
+        : RReg(32, -1) {}
 };
 
 struct XRegSp : public RReg {
@@ -297,7 +298,8 @@ struct Elem {
     constexpr explicit Elem(unsigned esize_, int reg_, unsigned elem_index_)
         : m_esize(esize_), m_reg(reg_), m_elem_index(elem_index_)
     {
-        if (elem_index_ >= 128 / esize_)
+        // esize_ is in bytes; a vector register holds 16 bytes
+        if (elem_index_ >= 16 / esize_)
             throw OaknutException{ExceptionType::InvalidElementIndex};
     }
 
@@ -313,7 +315,7 @@ private:
 
 struct BElem : public Elem {
     constexpr explicit BElem(int reg_, unsigned elem_index_)
-        : Elem(2, reg_, elem_index_)
+        : Elem(1, reg_, elem_index_)
     {}
 };
 
