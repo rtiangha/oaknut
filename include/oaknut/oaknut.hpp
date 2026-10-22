@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "oaknut/impl/legacy.hpp"
 #include <bit>
 #include <cstddef>
 #include <cstdint>
@@ -35,7 +36,16 @@ public:
 
     std::ptrdiff_t offset() const
     {
-        return m_offset.value();
+        if (!m_offset)
+            throw OaknutException{ExceptionType::LabelNotBound};
+        return *m_offset;
+    }
+
+    // True if instructions were emitted that refer to this label before it was bound.
+    // Check this (e.g. assert it is false) before a Label goes out of scope.
+    bool has_unresolved_references() const
+    {
+        return !m_wbs.empty();
     }
 
 private:
@@ -46,7 +56,7 @@ private:
         : m_offset(offset)
     {}
 
-    using EmitFunctionType = std::uint32_t (*)(std::ptrdiff_t wb_offset, std::ptrdiff_t resolved_offset);
+    using EmitFunctionType = std::uint32_t (*)(std::ptrdiff_t wb_offset, std::ptrdiff_t resolved_offset, std::uintptr_t base_addr);
 
     struct Writeback {
         std::ptrdiff_t m_wb_offset;
@@ -77,8 +87,9 @@ public:
 
         const auto target_offset = Policy::offset();
         label.m_offset = target_offset;
+        const std::uintptr_t base = absolute_base();
         for (auto& wb : label.m_wbs) {
-            const std::uint32_t value = wb.m_fn(wb.m_wb_offset, target_offset);
+            const std::uint32_t value = wb.m_fn(wb.m_wb_offset, target_offset, base);
             Policy::set_at_offset(wb.m_wb_offset, value, wb.m_mask);
         }
         label.m_wbs.clear();
@@ -160,6 +171,10 @@ public:
     // Convenience function for moving pointers to registers
     void MOVP2R(XReg xd, const void* addr)
     {
+        // PC-relative sequences are only valid if the final address of the code is known.
+        if (!Policy::has_absolute_addresses()) {
+            return MOV(xd, reinterpret_cast<uint64_t>(addr));
+        }
         const int64_t diff = reinterpret_cast<std::uint64_t>(addr) - Policy::template xptr<std::uintptr_t>();
         if (diff >= -0xF'FFFF && diff <= 0xF'FFFF) {
             ADR(xd, addr);
@@ -175,8 +190,25 @@ public:
         if (alignment < 4 || (alignment & (alignment - 1)) != 0)
             throw OaknutException{ExceptionType::InvalidAlignment};
 
-        while (Policy::offset() & (alignment - 1)) {
+#ifdef OAKNUT_LEGACY_ALIGN
+        // Old behavior: align the offset only (assumes the buffer base is suitably aligned).
+        while (static_cast<std::size_t>(Policy::offset()) & (alignment - 1)) {
             NOP();
+        }
+        return;
+#endif
+        // Align the real address when it is known; otherwise assume the buffer base is
+        // aligned at least as strictly as requested and align the offset.
+        if (Policy::has_absolute_addresses()) {
+            if (Policy::template xptr<std::uintptr_t>() & 3)
+                throw OaknutException{ExceptionType::InvalidAlignment};
+            while (Policy::template xptr<std::uintptr_t>() & (alignment - 1)) {
+                NOP();
+            }
+        } else {
+            while (static_cast<std::size_t>(Policy::offset()) & (alignment - 1)) {
+                NOP();
+            }
         }
     }
 
@@ -192,6 +224,17 @@ public:
     }
 
 private:
+    // Address of the start of the (executable) buffer, or 0 if unknown (assumed page-aligned).
+    std::uintptr_t absolute_base() const
+    {
+#ifdef OAKNUT_LEGACY_LABEL_BASE
+        return 0;
+#endif
+        if (!Policy::has_absolute_addresses())
+            return 0;
+        return Policy::template xptr<std::uintptr_t>() - static_cast<std::uintptr_t>(Policy::offset());
+    }
+
 #include "oaknut/impl/arm64_encode_helpers.inc.hpp"
 
     template<StringLiteral bs, StringLiteral... bargs, typename... Ts>
@@ -212,6 +255,10 @@ public:
 
     void set_offset(std::ptrdiff_t offset)
     {
+#ifndef OAKNUT_LEGACY_SET_OFFSET
+        if (offset < 0)
+            throw OaknutException{ExceptionType::OffsetOutOfRange};
+#endif
         if ((offset % sizeof(std::uint32_t)) != 0)
             throw OaknutException{ExceptionType::InvalidAlignment};
         m_ptr = m_wmem + offset / sizeof(std::uint32_t);
@@ -224,12 +271,34 @@ public:
         return reinterpret_cast<T>(m_ptr);
     }
 
+    // True if the executable address of the code is known (xmem was provided).
+    bool has_absolute_addresses() const
+    {
+#ifdef OAKNUT_LEGACY_XPTR
+        return true;
+#else
+        return m_xmem != nullptr;
+#endif
+    }
+
     template<typename T>
     T xptr() const
     {
         static_assert(std::is_pointer_v<T> || std::is_same_v<T, std::uintptr_t> || std::is_same_v<T, std::intptr_t>);
+#ifndef OAKNUT_LEGACY_XPTR
+        if (!m_xmem)
+            throw OaknutException{ExceptionType::RequiresAbsoluteAddressesContext};
+#endif
         return reinterpret_cast<T>(m_xmem + (m_ptr - m_wmem));
     }
+
+#ifndef OAKNUT_NO_WEND
+    // Optional: one past the last writable instruction slot. When set, emitting past it throws.
+    void set_wend(std::uint32_t* end)
+    {
+        m_wend = end;
+    }
+#endif
 
     void set_wptr(std::uint32_t* p)
     {
@@ -238,6 +307,10 @@ public:
 
     void set_xptr(std::uint32_t* p)
     {
+#ifndef OAKNUT_LEGACY_XPTR
+        if (!m_xmem)
+            throw OaknutException{ExceptionType::RequiresAbsoluteAddressesContext};
+#endif
         m_ptr = m_wmem + (p - m_xmem);
     }
 
@@ -250,6 +323,10 @@ protected:
 
     void append(std::uint32_t instruction)
     {
+#ifndef OAKNUT_NO_WEND
+        if (m_wend && m_ptr >= m_wend)
+            throw OaknutException{ExceptionType::CodeBufferFull};
+#endif
         *m_ptr++ = instruction;
     }
 
@@ -263,6 +340,9 @@ private:
     std::uint32_t* m_ptr;
     std::uint32_t* const m_wmem;
     std::uint32_t* const m_xmem;
+#ifndef OAKNUT_NO_WEND
+    std::uint32_t* m_wend = nullptr;
+#endif
 };
 
 struct VectorCodeGeneratorPolicy {
@@ -272,10 +352,24 @@ public:
         return m_vec.size() * sizeof(std::uint32_t);
     }
 
+    // True if the executable address of the code is known (xmem was provided).
+    bool has_absolute_addresses() const
+    {
+#ifdef OAKNUT_LEGACY_XPTR
+        return true;
+#else
+        return m_xmem != nullptr;
+#endif
+    }
+
     template<typename T>
     T xptr() const
     {
         static_assert(std::is_pointer_v<T> || std::is_same_v<T, std::uintptr_t> || std::is_same_v<T, std::intptr_t>);
+#ifndef OAKNUT_LEGACY_XPTR
+        if (!m_xmem)
+            throw OaknutException{ExceptionType::RequiresAbsoluteAddressesContext};
+#endif
         return reinterpret_cast<T>(m_xmem + m_vec.size());
     }
 
