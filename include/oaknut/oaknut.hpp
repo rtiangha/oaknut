@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "oaknut/impl/legacy.hpp"
 #include <bit>
 #include <cstddef>
 #include <cstdint>
@@ -226,6 +227,9 @@ private:
     // Address of the start of the (executable) buffer, or 0 if unknown (assumed page-aligned).
     std::uintptr_t absolute_base() const
     {
+#ifdef OAKNUT_LEGACY_LABEL_BASE
+        return 0;
+#endif
         if (!Policy::has_absolute_addresses())
             return 0;
         return Policy::template xptr<std::uintptr_t>() - static_cast<std::uintptr_t>(Policy::offset());
@@ -251,8 +255,10 @@ public:
 
     void set_offset(std::ptrdiff_t offset)
     {
+#ifndef OAKNUT_LEGACY_SET_OFFSET
         if (offset < 0)
             throw OaknutException{ExceptionType::OffsetOutOfRange};
+#endif
         if ((offset % sizeof(std::uint32_t)) != 0)
             throw OaknutException{ExceptionType::InvalidAlignment};
         m_ptr = m_wmem + offset / sizeof(std::uint32_t);
@@ -286,11 +292,13 @@ public:
         return reinterpret_cast<T>(m_xmem + (m_ptr - m_wmem));
     }
 
+#ifndef OAKNUT_NO_WEND
     // Optional: one past the last writable instruction slot. When set, emitting past it throws.
     void set_wend(std::uint32_t* end)
     {
         m_wend = end;
     }
+#endif
 
     void set_wptr(std::uint32_t* p)
     {
@@ -315,8 +323,10 @@ protected:
 
     void append(std::uint32_t instruction)
     {
+#ifndef OAKNUT_NO_WEND
         if (m_wend && m_ptr >= m_wend)
             throw OaknutException{ExceptionType::CodeBufferFull};
+#endif
         *m_ptr++ = instruction;
     }
 
@@ -330,7 +340,9 @@ private:
     std::uint32_t* m_ptr;
     std::uint32_t* const m_wmem;
     std::uint32_t* const m_xmem;
+#ifndef OAKNUT_NO_WEND
     std::uint32_t* m_wend = nullptr;
+#endif
 };
 
 struct VectorCodeGeneratorPolicy {

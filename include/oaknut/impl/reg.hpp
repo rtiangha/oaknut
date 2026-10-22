@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "oaknut/impl/legacy.hpp"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -141,8 +142,13 @@ struct SpReg : public RReg {
 };
 
 struct WspReg : public RReg {
+#ifdef OAKNUT_LEGACY_REG_CHECKS
+    constexpr explicit WspReg()
+        : RReg(64, -1) {}
+#else
     constexpr explicit WspReg()
         : RReg(32, -1) {}
+#endif
 };
 
 struct XRegSp : public RReg {
