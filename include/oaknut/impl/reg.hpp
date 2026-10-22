@@ -56,8 +56,12 @@ struct Reg {
         , m_bitsize(static_cast<std::uint8_t>(bitsize_))
         , m_is_vector(is_vector_)
     {
+#ifdef OAKNUT_LEGACY_REG_CHECKS
+        assert(index_ >= -1 && index_ <= 31);
+#else
         if (index_ < -1 || index_ > 31)
             throw OaknutException{ExceptionType::InvalidRegisterIndex};
+#endif
         assert(bitsize_ != 0 && (bitsize_ & (bitsize_ - 1)) == 0 && "Bitsize must be a power of two");
     }
 
@@ -298,8 +302,12 @@ struct Elem {
     constexpr explicit Elem(unsigned esize_, int reg_, unsigned elem_index_)
         : m_esize(esize_), m_reg(reg_), m_elem_index(elem_index_)
     {
+#ifdef OAKNUT_LEGACY_ELEM_BOUNDS
+        if (elem_index_ >= 128 / esize_)
+#else
         // esize_ is in bytes; a vector register holds 16 bytes
         if (elem_index_ >= 16 / esize_)
+#endif
             throw OaknutException{ExceptionType::InvalidElementIndex};
     }
 
@@ -315,7 +323,11 @@ private:
 
 struct BElem : public Elem {
     constexpr explicit BElem(int reg_, unsigned elem_index_)
+#ifdef OAKNUT_LEGACY_ELEM_BOUNDS
+        : Elem(2, reg_, elem_index_)
+#else
         : Elem(1, reg_, elem_index_)
+#endif
     {}
 };
 

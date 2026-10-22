@@ -189,6 +189,13 @@ public:
         if (alignment < 4 || (alignment & (alignment - 1)) != 0)
             throw OaknutException{ExceptionType::InvalidAlignment};
 
+#ifdef OAKNUT_LEGACY_ALIGN
+        // Old behavior: align the offset only (assumes the buffer base is suitably aligned).
+        while (static_cast<std::size_t>(Policy::offset()) & (alignment - 1)) {
+            NOP();
+        }
+        return;
+#endif
         // Align the real address when it is known; otherwise assume the buffer base is
         // aligned at least as strictly as requested and align the offset.
         if (Policy::has_absolute_addresses()) {
@@ -261,15 +268,21 @@ public:
     // True if the executable address of the code is known (xmem was provided).
     bool has_absolute_addresses() const
     {
+#ifdef OAKNUT_LEGACY_XPTR
+        return true;
+#else
         return m_xmem != nullptr;
+#endif
     }
 
     template<typename T>
     T xptr() const
     {
         static_assert(std::is_pointer_v<T> || std::is_same_v<T, std::uintptr_t> || std::is_same_v<T, std::intptr_t>);
+#ifndef OAKNUT_LEGACY_XPTR
         if (!m_xmem)
             throw OaknutException{ExceptionType::RequiresAbsoluteAddressesContext};
+#endif
         return reinterpret_cast<T>(m_xmem + (m_ptr - m_wmem));
     }
 
@@ -286,8 +299,10 @@ public:
 
     void set_xptr(std::uint32_t* p)
     {
+#ifndef OAKNUT_LEGACY_XPTR
         if (!m_xmem)
             throw OaknutException{ExceptionType::RequiresAbsoluteAddressesContext};
+#endif
         m_ptr = m_wmem + (p - m_xmem);
     }
 
@@ -328,15 +343,21 @@ public:
     // True if the executable address of the code is known (xmem was provided).
     bool has_absolute_addresses() const
     {
+#ifdef OAKNUT_LEGACY_XPTR
+        return true;
+#else
         return m_xmem != nullptr;
+#endif
     }
 
     template<typename T>
     T xptr() const
     {
         static_assert(std::is_pointer_v<T> || std::is_same_v<T, std::uintptr_t> || std::is_same_v<T, std::intptr_t>);
+#ifndef OAKNUT_LEGACY_XPTR
         if (!m_xmem)
             throw OaknutException{ExceptionType::RequiresAbsoluteAddressesContext};
+#endif
         return reinterpret_cast<T>(m_xmem + m_vec.size());
     }
 
