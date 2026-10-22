@@ -8,6 +8,7 @@ OAKNUT_EXCEPTION(InvalidWZRConversion, "unexpected WZR passed into an WRegWsp")
 OAKNUT_EXCEPTION(InvalidXZRConversion, "unexpected XZR passed into an XRegSp")
 OAKNUT_EXCEPTION(InvalidDElem_1, "invalid DElem_1")
 OAKNUT_EXCEPTION(InvalidElementIndex, "elem_index is out of range")
+OAKNUT_EXCEPTION(InvalidRegisterIndex, "register index is out of range")
 
 // imm.hpp / offset.hpp / list.hpp
 OAKNUT_EXCEPTION(InvalidAddSubImm, "invalid AddSubImm")
@@ -42,3 +43,5 @@ OAKNUT_EXCEPTION(InvalidRotation, "Invalid rotation operand")
 // oaknut.hpp
 OAKNUT_EXCEPTION(InvalidAlignment, "invalid alignment")
 OAKNUT_EXCEPTION(LabelRedefinition, "label already resolved")
+OAKNUT_EXCEPTION(LabelNotBound, "label has not been bound")
+OAKNUT_EXCEPTION(CodeBufferFull, "code buffer limit reached")
